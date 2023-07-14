@@ -1,19 +1,20 @@
 name: Build Images and Deploy in ECR
 on:
-  push:
+  pull_request:
     branches:
       - "main"
 env:
   AWS_REGION : "us-east-1"
   ENV: "prod"
-permissions:
-  id-token: write
-  contents: read
 
 jobs:
   integration:
     name: create application images
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout code from GitHub to runner
         uses: actions/checkout@v2
