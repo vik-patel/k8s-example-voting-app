@@ -15,6 +15,16 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Update docker Version
+        run: |
+          docker --version
+          sudo apt remove docker docker-engine docker.io -y
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt update
+          sudo apt install docker-ce -y
+
       - name: Checkout code from GitHub to runner
         uses: actions/checkout@v2
         with:
