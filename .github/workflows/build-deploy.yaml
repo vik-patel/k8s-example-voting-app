@@ -9,7 +9,7 @@ env:
 jobs:
   integration:
     name: create application images
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code from GitHub to runner
         uses: actions/checkout@v2
