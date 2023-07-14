@@ -21,10 +21,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::376117310197:role/oidc_identity
-          role-duration-seconds: 28800
+          role-duration-seconds: 1200
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
