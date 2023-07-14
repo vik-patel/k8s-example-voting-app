@@ -9,7 +9,7 @@ env:
 
 jobs:
   integration:
-    name: create application images
+    name: create application images from source code
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -36,9 +36,18 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: voting-app
-          IMAGE_TAG1: vote-${{ env.ENV }}-${{ github.sha }}
-        # Build a docker container and push it to ECR so that it can be deployed to EKS.
+          IMAGE_TAG_VOTE: vote-${{ env.ENV }}-${{ github.sha }}
+          IMAGE_TAG_RESULT: result-${{ env.ENV }}-${{ github.sha }}
+          IMAGE_TAG_WORKER: worker-${{ env.ENV }}-${{ github.sha }}
+        # Build docker images for vote, result and worker modules and push them to ECR so that it can be deployed to EKS.
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1 --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f vote/Dockerfile .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG1"                  
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_VOTE --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f vote/Dockerfile ./vote
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_VOTE
+          echo "::set-output vote=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_VOTE"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG_RESULT --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f result/Dockerfile ./result
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG_RESULT
+          echo "::set-output result=image::$ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG_RESULT"     
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG_WORKER --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f worker/Dockerfile ./worker
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG_WORKER
+          echo "::set-output worker=image::$ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG_WORKER"
+                              
