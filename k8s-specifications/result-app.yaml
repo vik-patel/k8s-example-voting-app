@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  result
+  namespace: default
+  labels:
+    app:  result
+spec:
+  selector:
+    matchLabels:
+      app: result
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  result
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name:  result
+        image:  devopsulting/result:v1
+        resources:
+          requests:
+            cpu: 10m
+            memory: 50Mi
+        ports:
+        - containerPort:  80
+          name:  result
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: result
+  namespace: default
+spec:
+  selector:
+    app: result
+  type: NodePort
+  sessionAffinity: None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+  - name: "result-service"
+    protocol: TCP
+    port: 5001
+    targetPort: 80
+    # If you set the `spec.type` field to `NodePort` and you want a specific port number,
+    # you can specify a value in the `spec.ports[*].nodePort` field.
+    nodePort: 30051    

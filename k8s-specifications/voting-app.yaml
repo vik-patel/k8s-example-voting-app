@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  vote
+  namespace: default
+  labels:
+    app:  vote
+spec:
+  selector:
+    matchLabels:
+      app: vote
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  vote
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name:  vote
+        image:  devopsulting/vote:v1
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        ports:
+        - containerPort:  80
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vote
+  namespace: default
+spec:
+  selector:
+    app: vote
+  type: NodePort
+  sessionAffinity: None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+  - name: "vote-service"
+    protocol: TCP
+    port: 5000
+    targetPort: 80 
+    # If you set the `spec.type` field to `NodePort` and you want a specific port number,
+    # you can specify a value in the `spec.ports[*].nodePort` field.
+    nodePort: 30050
