@@ -15,11 +15,10 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Update docker Version
+      - name: Update docker Version, as worker module requires it
         run: |
           docker --version
           sudo apt update
-          sudo apt purge -y docker.io
           sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -50,7 +49,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: voting-app
           IMAGE_TAG: vote-${{ env.ENV }}-${{ github.sha }}
-        # Build docker images for vote, result and worker modules and push them to ECR so that it can be deployed to EKS.
+        # Build docker images for vote module and push it to ECR so that it can be deployed to EKS.
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f vote/Dockerfile ./vote
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -63,7 +62,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: voting-app
           IMAGE_TAG: result-${{ env.ENV }}-${{ github.sha }}
-        # Build docker images for vote, result and worker modules and push them to ECR so that it can be deployed to EKS.
+        # Build docker images for result module and push it to ECR so that it can be deployed to EKS.
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f result/Dockerfile ./result
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -76,7 +75,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: voting-app
           IMAGE_TAG: worker-${{ env.ENV }}-${{ github.sha }}
-        # Build docker images for vote, result and worker modules and push them to ECR so that it can be deployed to EKS.
+        # Build docker images for worker module and push it to ECR so that it can be deployed to EKS.
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f worker/Dockerfile ./worker
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
