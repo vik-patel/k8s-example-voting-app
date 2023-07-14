@@ -52,9 +52,9 @@ jobs:
           IMAGE_TAG: result-${{ env.ENV }}-${{ github.sha }}
         # Build docker images for vote, result and worker modules and push them to ECR so that it can be deployed to EKS.
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f result/Dockerfile ./result
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$$IMAGE_TAG"     
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f result/Dockerfile ./result
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
 
       - name: Build, tag, and push the worker docker image to Amazon ECR
