@@ -21,7 +21,7 @@ spec:
           # - Each init container must complete successfully before the next one starts.
       containers:
       - name:  result
-        image:  devopsulting/result:v1
+        image:  dockersamples/examplevotingapp_result
         resources:
           requests:
             cpu: 10m
@@ -39,7 +39,7 @@ metadata:
 spec:
   selector:
     app: result
-  type: NodePort
+  type: LoadBalancer
   sessionAffinity: None
   sessionAffinityConfig:
     clientIP:
@@ -51,4 +51,4 @@ spec:
     targetPort: 80
     # If you set the `spec.type` field to `NodePort` and you want a specific port number,
     # you can specify a value in the `spec.ports[*].nodePort` field.
-    nodePort: 30051    
+    # nodePort: 30051    

@@ -23,10 +23,20 @@ spec:
       - name:  db
         image:  postgres:15-alpine
         env:
+        - name: POSTGRES_DB
+          value: voting_db
         - name: POSTGRES_USER
-          value: postgres
+          valueFrom:
+            secretKeyRef:
+              name:  postgres-cred
+              key:  username
         - name: POSTGRES_PASSWORD
-          value: postgres
+          valueFrom:
+            secretKeyRef:
+              name:  postgres-cred
+              key:  password
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata              
         resources:
           requests:
             cpu: 10m
@@ -37,10 +47,13 @@ spec:
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
+          subPath: postgress
       volumes:
         - name: db-data
-          hostPath:
-            path: /run/desktop/mnt/host/c/postgres/data
+          # hostPath:
+          #   path: /mnt/host/c/postgres/data
+          persistentVolumeClaim:
+            claimName: datapersist-pvc
       restartPolicy: Always
 ---
 apiVersion: v1
