@@ -34,8 +34,10 @@ spec:
           mountPath: /data
       volumes:
         - name: redis-data
-          hostPath:
-            path: /run/desktop/mnt/host/c/redis/data
+          persistentVolumeClaim:
+            claimName: datapersist-pvc
+          # hostPath:
+          #   path: /run/desktop/mnt/host/c/redis/data
       restartPolicy: Always
 ---
 apiVersion: v1
