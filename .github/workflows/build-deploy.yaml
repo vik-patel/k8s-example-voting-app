@@ -50,7 +50,7 @@ jobs:
           IMAGE_TAG: vote-${{ env.ENV }}-latest
         # Build docker images for vote module and push it to ECR so that it can be deployed to EKS.
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t latest --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f vote/Dockerfile ./vote
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f vote/Dockerfile ./vote
           docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
@@ -63,7 +63,7 @@ jobs:
           IMAGE_TAG: result-${{ env.ENV }}-latest
         # Build docker images for result module and push it to ECR so that it can be deployed to EKS.
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t latest --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f result/Dockerfile ./result
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg aws_region=${{ env.AWS_REGION }} --build-arg in_aws="yes" --build-arg copy_or_mount="copy" -f result/Dockerfile ./result
           docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
@@ -76,6 +76,43 @@ jobs:
           IMAGE_TAG: worker-${{ env.ENV }}-latest
         # Build docker images for worker module and push it to ECR so that it can be deployed to EKS.
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t latest --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f worker/Dockerfile ./worker
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f worker/Dockerfile ./worker
           docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+  deployment:
+    needs: build #dependent on the build job success
+    name: Deploy application to EKS cluster
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code from GitHub to runner
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::376117310197:role/oidc_identity
+          role-duration-seconds: 1200
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: '1.27' # default is latest stable
+        id: install-kubectl
+      - name: Update kube config
+        run: aws eks update-kubeconfig --name k8s-infra-creation --region ${{ env.AWS_REGION }}
+
+      - name: Deploy application images to EKS cluster
+        run: |
+          kubectl apply -f k8s-specifications/db-secret.yaml
+          kubectl apply -f k8s-specifications/ingress-controller.yaml
+          kubectl apply -f k8s-specifications/db.yaml
+          kubectl apply -f k8s-specifications/redis.yaml
+          kubectl apply -f k8s-specifications/worker.yaml
+          kubectl apply -f k8s-specifications/voting-app.yaml
+          kubectl apply -f k8s-specifications/result-app.yaml 
+          kubectl apply -f k8s-specifications/app-ingress.yaml
