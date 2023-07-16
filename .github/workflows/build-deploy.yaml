@@ -100,8 +100,8 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
-        with:
-          version: '1.27' # default is latest stable
+        # with:
+        #   version: '1.27' # default is latest stable
         id: install-kubectl
       - name: Update kube config
         run: aws eks update-kubeconfig --name k8s-infra-creation --region ${{ env.AWS_REGION }}
