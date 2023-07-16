@@ -47,13 +47,10 @@ spec:
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
-          subPath: postgress
+          # subPath: postgress
       volumes:
         - name: db-data
-          # hostPath:
-          #   path: /mnt/host/c/postgres/data
-          persistentVolumeClaim:
-            claimName: datapersist-pvc
+          emptyDir: {}
       restartPolicy: Always
 ---
 apiVersion: v1

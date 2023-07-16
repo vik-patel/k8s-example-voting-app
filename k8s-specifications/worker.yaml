@@ -21,7 +21,8 @@ spec:
           # - Each init container must complete successfully before the next one starts.
       containers:
       - name:  worker
-        image:  dockersamples/examplevotingapp_worker
+        image:  376117310197.dkr.ecr.us-east-1.amazonaws.com/voting-app:worker-prod-latest
+        imagePullPolicy: Always
         resources:
           requests:
             cpu: 50m
