@@ -1,3 +1,4 @@
+name: Deploy images from ECR to k8s
 on:
   workflow_dispatch
 env:
@@ -9,10 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install latest AWS CLI
-      run: |
-        aws --version
-
     - name: Checkout code from GitHub to runner
       uses: actions/checkout@v2
       with:
