@@ -14,9 +14,7 @@ jobs:
     steps:
     - name: Generate the GitHub OIDC token
       run: |
-        sudo apt install jq -y
-        TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-        "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://sts.amazonaws.com" | jq -r '.value')   
+        TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://sts.amazonaws.com" | jq -r '.value')   
         echo $TOKEN
 
     - name: Checkout code from GitHub to runner
