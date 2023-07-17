@@ -1,4 +1,4 @@
-name: Build Images and Deploy in ECR
+name: Build Application Images and store in ECR
 on:
   push:
     branches:
