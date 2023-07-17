@@ -34,7 +34,7 @@ jobs:
           
     - name: Deploy application images to EKS cluster
       run: |
-        kubectl --version
+        kubectl version --short
         kubectl apply -f k8s-specifications/db-secret.yaml
         kubectl apply -f k8s-specifications/ingress-controller.yaml
         kubectl apply -f k8s-specifications/db.yaml
