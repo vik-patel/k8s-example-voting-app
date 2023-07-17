@@ -35,14 +35,22 @@ jobs:
         aws eks update-kubeconfig --name k8s-voting-app --region ${{ env.AWS_REGION }}
         cat /home/runner/.kube/config
 
-    - name: Deploy application images to EKS cluster
+    - name: Get the GitHub OIDC token, Assume the role with web identity and Use the temporary credentials to make API calls
       run: |
-        kubectl version --short
-        kubectl apply -f k8s-specifications/db-secret.yaml
-        kubectl apply -f k8s-specifications/ingress-controller.yaml
-        kubectl apply -f k8s-specifications/db.yaml
-        kubectl apply -f k8s-specifications/redis.yaml
-        kubectl apply -f k8s-specifications/worker.yaml
-        kubectl apply -f k8s-specifications/voting-app.yaml
-        kubectl apply -f k8s-specifications/result-app.yaml
-        kubectl apply -f k8s-specifications/app-ingress.yaml
+        OIDC_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+        "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sigstore" | jq -r '.value')
+        
+        echo $OIDC_TOKEN
+
+        aws sts assume-role-with-web-identity \
+        --role-arn arn:aws:iam::376117310197:role/oidc_identity \
+        --role-session-name GitHubActions \
+        --web-identity-token $OIDC_TOKEN \
+        --provider-id www.amazon.com
+
+        export AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' <<< "$TEMP_ROLE")
+        export AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' <<< "$TEMP_ROLE")
+        export AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' <<< "$TEMP_ROLE")
+
+        echo $TEMP_ROLE
+
