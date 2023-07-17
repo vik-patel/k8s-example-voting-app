@@ -11,35 +11,7 @@ jobs:
   deployment:
     name: Deploy application to EKS cluster
     runs-on: ubuntu-latest
-    steps:
-    - name: Generate the GitHub OIDC token
-      uses: actions/github-script@v6
-      id: script
-      timeout-minutes: 10
-      with:
-        debug: true
-        script: |
-          const token = process.env['ACTIONS_RUNTIME_TOKEN']
-          const runtimeUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL']
-          core.setOutput('TOKEN', token.trim())
-          core.setOutput('IDTOKENURL', runtimeUrl.trim())
-
-    - name: Publich OIDC token
-      run: |
-        IDTOKEN=$(curl -H "Authorization: bearer  ${{steps.script.outputs.TOKEN}}" ${{steps.script.outputs.IDTOKENURL}}  -H "Accept: application/json; api-version=2.0" -H "Content-Type: application/json" -d "{}" | jq -r '.value')
-        echo $IDTOKEN
-        jwtd() {
-            if [[ -x $(command -v jq) ]]; then
-                jq -R 'split(".") | .[0],.[1] | @base64d | fromjson' <<< "${1}"
-                echo "Signature: $(echo "${1}" | awk -F'.' '{print $3}')"
-                TOKEN1=$(echo "${1}" | awk -F'.' '{print $3}')
-                echo $TOKEN1
-            fi
-        }
-        jwtd $IDTOKEN
-        echo "idToken=${IDTOKEN}" >> $GITHUB_OUTPUT
-      id: tokenid       
-
+    steps: 
     - name: Checkout code from GitHub to runner
       uses: actions/checkout@v2
       with:
@@ -48,27 +20,27 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::376117310197:role/oidc_identity
-        role-duration-seconds: 1200
+        aws-access-key-id: ${{ secrets.AWS_AP_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_AP_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Install kubectl
       uses: azure/setup-kubectl@v3
         # with:
         #   version: '1.27' # default is latest stable
-
-    - name: Get the GitHub OIDC token, Assume the role with web identity and Use the temporary credentials to make API calls
+    - name: Update kube config
       run: |
-
-        aws sts assume-role-with-web-identity \
-        --role-arn arn:aws:iam::376117310197:role/oidc_identity \
-        --role-session-name GitHubActions \
-        --web-identity-token $TOKEN1 \
-        --provider-id www.amazon.com
-
-        export AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' <<< "$TEMP_ROLE")
-        export AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' <<< "$TEMP_ROLE")
-        export AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' <<< "$TEMP_ROLE")
-
-        echo $TEMP_ROLE
+        aws eks update-kubeconfig --name k8s-voting-app --region ${{ env.AWS_REGION }}	
+          
+    - name: Deploy application images to EKS cluster
+      run: |
+        kubectl --version
+        kubectl apply -f k8s-specifications/db-secret.yaml
+        kubectl apply -f k8s-specifications/ingress-controller.yaml
+        kubectl apply -f k8s-specifications/db.yaml
+        kubectl apply -f k8s-specifications/redis.yaml
+        kubectl apply -f k8s-specifications/worker.yaml
+        kubectl apply -f k8s-specifications/voting-app.yaml
+        kubectl apply -f k8s-specifications/result-app.yaml 
+        kubectl apply -f k8s-specifications/app-ingress.yaml   
 
