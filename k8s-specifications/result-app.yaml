@@ -40,7 +40,7 @@ metadata:
 spec:
   selector:
     app: result
-  type: LoadBalancer
+  type: ClusterIP
   sessionAffinity: None
   sessionAffinityConfig:
     clientIP:
