@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - .github/workflows/build.yaml
 env:
   AWS_REGION : "us-east-1"
   ENV: "prod"
