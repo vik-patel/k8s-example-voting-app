@@ -37,7 +37,7 @@ jobs:
           role-to-assume: arn:aws:iam::376117310197:role/oidc_identity
           role-duration-seconds: 1200
           aws-region: ${{ env.AWS_REGION }}
-
+          
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -79,50 +79,3 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f worker/Dockerfile ./worker
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-  deployment:
-    needs: build #dependent on the build job success
-    name: Deploy application to EKS cluster
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install latest AWS CLI
-        run: |
-          sudo apt-get update
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update
-          aws --version
-          aws sts get-caller-identity
-
-      - name: Checkout code from GitHub to runner
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::376117310197:role/oidc_identity
-          role-duration-seconds: 1200
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        # with:
-        #   version: '1.27' # default is latest stable
-        id: install-kubectl      
-      - name: Update kube config
-        run: aws eks update-kubeconfig --name k8s-infra-creation --region ${{ env.AWS_REGION }}
-
-      - name: Deploy application images to EKS cluster
-        run: |
-          kubectl --version
-          kubectl apply -f k8s-specifications/db-secret.yaml
-          kubectl apply -f k8s-specifications/ingress-controller.yaml
-          kubectl apply -f k8s-specifications/db.yaml
-          kubectl apply -f k8s-specifications/redis.yaml
-          kubectl apply -f k8s-specifications/worker.yaml
-          kubectl apply -f k8s-specifications/voting-app.yaml
-          kubectl apply -f k8s-specifications/result-app.yaml 
-          kubectl apply -f k8s-specifications/app-ingress.yaml
