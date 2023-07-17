@@ -29,11 +29,6 @@ jobs:
       uses: azure/setup-kubectl@v3
         # with:
         #   version: '1.27' # default is latest stable
-    #   id: install-kubectl      
-    # - name: Update kube config
-    #   run: |
-    #     aws eks update-kubeconfig --name k8s-voting-app --region ${{ env.AWS_REGION }}
-    #     cat /home/runner/.kube/config
 
     - name: Get the GitHub OIDC token, Assume the role with web identity and Use the temporary credentials to make API calls
       run: |
