@@ -35,8 +35,8 @@ spec:
             secretKeyRef:
               name:  postgres-cred
               key:  password
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata              
+        # - name: PGDATA
+        #   value: /var/lib/postgresql/data/pgdata              
         resources:
           requests:
             cpu: 10m
@@ -47,7 +47,7 @@ spec:
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
-          # subPath: postgress
+          subPath: postgres
       volumes:
         - name: db-data
           emptyDir: {}

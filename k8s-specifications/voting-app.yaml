@@ -39,7 +39,7 @@ metadata:
 spec:
   selector:
     app: vote
-  type: LoadBalancer
+  type: ClusterIP
   sessionAffinity: None
   sessionAffinityConfig:
     clientIP:
