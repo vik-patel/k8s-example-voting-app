@@ -1,30 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  db
-  namespace: default
   labels:
-    app:  db
+    app: db
+  name: db
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: db
-  replicas: 1
   template:
     metadata:
       labels:
-        app:  db
+        app: db
     spec:
-      # initContainers:
-        # Init containers are exactly like regular containers, except:
-          # - Init containers always run to completion.
-          # - Each init container must complete successfully before the next one starts.
       containers:
-      - name:  db
-        image:  postgres:15-alpine
+      - image: postgres:15-alpine
+        name: postgres
         env:
-        - name: POSTGRES_DB
-          value: voting_db
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -35,23 +28,18 @@ spec:
             secretKeyRef:
               name:  postgres-cred
               key:  password
-        # - name: PGDATA
-        #   value: /var/lib/postgresql/data/pgdata       
-        resources:
-          requests:
-            cpu: 10m
-            memory: 50Mi
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
         ports:
-        - containerPort:  5432
-          name:  db
+        - containerPort: 5432
+          name: postgres
         volumeMounts:
-        - name: db-data
-          mountPath: /var/lib/postgresql/data
+        - mountPath: /var/lib/postgresql/data
+          name: db-data
           subPath: postgres
       volumes:
-        - name: db-data
-          emptyDir: {}
-      restartPolicy: Always
+      - name: db-data
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
