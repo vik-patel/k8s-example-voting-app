@@ -14,7 +14,7 @@ spec:
               service:
                 name: vote
                 port: 
-                  number: 443
+                  number: 5000
     - host: result.cloudempowered.co
       http:
         paths:
@@ -24,4 +24,4 @@ spec:
               service:
                 name: result
                 port: 
-                  number: 443                  
+                  number: 5001                  
