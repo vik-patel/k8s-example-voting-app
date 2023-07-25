@@ -36,8 +36,13 @@ jobs:
       run: |
         kubectl version --short
         kubectl apply -f k8s-specifications/db-secret.yaml
-        kubectl apply -f k8s-specifications/ingress-controller.yaml
         kubectl apply -f k8s-specifications/db.yaml
         kubectl apply -f k8s-specifications/redis.yaml
-        kubectl apply -f k8s-specifications/worker.yaml   
+        kubectl apply -f k8s-specifications/worker.yaml
+        kubectl apply -f k8s-specifications/ingress-controller.yaml
+        sleep 30
+        kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+        kubectl apply -f k8s-specifications/voting-app.yaml
+        kubectl apply -f k8s-specifications/result-app.yaml 
+        kubectl apply -f k8s-specifications/app-ingress.yaml   
 
