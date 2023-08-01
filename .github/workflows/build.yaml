@@ -29,7 +29,7 @@ jobs:
           docker --version
 
       - name: Checkout code from GitHub to runner
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
