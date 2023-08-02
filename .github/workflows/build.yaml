@@ -5,6 +5,9 @@ on:
       - "main"
     paths:
       - .github/workflows/build.yaml
+      - ./result
+      - ./vote
+      - ./worker
 env:
   AWS_REGION : "us-east-1"
   ENV: "prod"
