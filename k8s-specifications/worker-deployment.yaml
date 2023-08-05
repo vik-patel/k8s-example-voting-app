@@ -15,7 +15,7 @@ spec:
         app: worker
     spec:
       containers:
-      - image: 376117310197.dkr.ecr.us-east-1.amazonaws.com/voting-app:worker-prod-latest
+      - image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/voting-app:worker-prod-latest
         name: worker
         resources:
           requests:

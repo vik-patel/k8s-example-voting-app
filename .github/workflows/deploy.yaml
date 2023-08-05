@@ -32,7 +32,7 @@ jobs:
       run: |
         aws eks update-kubeconfig --name k8s-voting-app --region ${{ env.AWS_REGION }}	
           
-    - name: Deploy application images to EKS cluster
+    - name: Deploy application images to EKS cluster using manifest
       run: |
         kubectl version --short
         kubectl apply -f k8s-specifications/db-secret.yaml
