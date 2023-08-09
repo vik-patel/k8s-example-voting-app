@@ -9,7 +9,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# have nodemon available for local dev use (file watching).
+# have nodemon available for local dev use (file watching)
 RUN npm install -g nodemon
 
 COPY package*.json ./
