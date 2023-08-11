@@ -16,4 +16,4 @@ A simple distributed application running across multiple Docker containers.
 
 The voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client.
 
-Technical Architectural overview
+## Solution Technical Architecture
