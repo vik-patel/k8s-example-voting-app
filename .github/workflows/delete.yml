@@ -48,8 +48,6 @@ jobs:
         kubectl delete secret ingress-nginx-admission -n ingress-nginx
         kubectl delete serviceaccount default -n ingress-nginx
         kubectl delete lease ingress-nginx-leader -n ingress-nginx
-        kubectl delete service ingress-nginx-controller -n ingress-nginx
-        kubectl delete service ingress-nginx-controller-admission  -n ingress-nginx
         kubectl delete deployment ingress-nginx-controller -n ingress-nginx
 
 
