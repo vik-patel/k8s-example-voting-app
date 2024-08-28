@@ -2,7 +2,7 @@ name: Deploy images from ECR to k8s
 on:
   workflow_dispatch
 env:
-  AWS_REGION: "us-east-1"
+  AWS_REGION: "us-east-2"
   ENV: "prod"
 permissions:
   id-token: write
@@ -30,7 +30,7 @@ jobs:
         #   version: '1.27' # default is latest stable
     - name: Update kube config
       run: |
-        aws eks update-kubeconfig --name k8s-voting-app --region ${{ env.AWS_REGION }}	
+        aws eks update-kubeconfig --name sysdig-voting-app --region ${{ env.AWS_REGION }}	
           
     - name: Deploy application images to EKS cluster using manifest
       run: |
