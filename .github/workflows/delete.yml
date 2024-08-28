@@ -1,0 +1,57 @@
+name: Delete images from ECR to k8s
+on:
+  workflow_dispatch
+env:
+  AWS_REGION: "us-east-2"
+  #ENV: "prod"
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  deployment:
+    name: Deploy application to EKS cluster
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Checkout code from GitHub to runner
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_AP_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_AP_SECRET_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+        # with:
+        #   version: '1.27' # default is latest stable
+    - name: Update kube config
+      run: |
+        aws eks update-kubeconfig --name sysdig-voting-app --region ${{ env.AWS_REGION }}	
+          
+    - name: Deploy application images to EKS cluster using manifest
+      run: |
+        kubectl delete secret postgres-cred
+        kubectl delete secret ingress-nginx-admission
+        
+        kubectl delete service db
+        kubectl delete service ingress-nginx-controller
+        kubectl delete service ingress-nginx-controller-admission
+        kubectl delete service redis
+        kubectl delete service result
+        kubectl delete service vote
+
+        kubectl delete deployment db
+        kubectl delete deployment ingress-nginx-controller
+        kubectl delete deployment redis
+        kubectl delete deployment result
+        kubectl delete deployment vote
+        kubectl delete deployment worker
+
+        kubectl delete all  --all -n ingress-nginx
+        kubectl delete ingressClass nginx
+        kubectl delete ValidatingWebhookConfiguration ingress-nginx-admission
+        
