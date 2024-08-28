@@ -34,8 +34,8 @@ jobs:
           
     - name: Deploy application images to EKS cluster using manifest
       run: |
-        kubectl delete secret postgres-cred
-        kubectl delete secret ingress-nginx-admission
+#        kubectl delete secret postgres-cred
+#        kubectl delete secret ingress-nginx-admission
         
         kubectl delete service db
         kubectl delete service ingress-nginx-controller
