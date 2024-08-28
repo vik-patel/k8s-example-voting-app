@@ -34,14 +34,20 @@ jobs:
           
     - name: Deploy application images to EKS cluster using manifest
       run: |
-        kubectl delete service ingress-nginx-controller -n ingress-nginx
-        kubectl delete service ingress-nginx-controller-admission  -n ingress-nginx
-        kubectl delete deployment ingress-nginx-controller -n ingress-nginx
-        kubectl delete deployment redis
-        kubectl delete deployment result
-        kubectl delete deployment vote
-        kubectl delete deployment worker
+        kubectl delete ingress basic-routing
+        kubectl delete configmap kube-root-ca.crt -n ingress-nginx
+        kubectl delete secret ingress-nginx-admission -n ingress-nginx
+        kubectl delete serviceaccount default -n ingress-nginx
+        kubectl delete lease ingress-nginx-leader -n ingress-nginx
+      #  kubectl delete namespace ingress-nginx
+      #  kubectl delete service ingress-nginx-controller -n ingress-nginx
+      #  kubectl delete service ingress-nginx-controller-admission  -n ingress-nginx
+      #  kubectl delete deployment ingress-nginx-controller -n ingress-nginx
+      #  kubectl delete deployment redis
+      #  kubectl delete deployment result
+      #  kubectl delete deployment vote
+      #  kubectl delete deployment worker
 
-        kubectl delete all  --all -n ingress-nginx
-        kubectl delete ingressClass nginx
-        
+      # kubectl delete all  --all -n ingress-nginx
+      #  kubectl delete ingressClass nginx
+ 
