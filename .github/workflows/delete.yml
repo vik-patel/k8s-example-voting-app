@@ -34,11 +34,6 @@ jobs:
           
     - name: Deploy application images to EKS cluster using manifest
       run: |
-      # kubectl delete ingress basic-routing
-      #  kubectl delete service result
-      #  kubectl delete deployment result
-      #  kubectl delete service vote
-      #  kubectl delete deployment vote
         kubectl delete deployment worker
         kubectl delete service redis
         kubectl delete deployment redis
