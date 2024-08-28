@@ -34,7 +34,6 @@ jobs:
           
     - name: Deploy application images to EKS cluster using manifest
       run: |
-        kubectl delete service db
         kubectl delete service redis
         kubectl delete service result
         kubectl delete service vote
@@ -48,5 +47,4 @@ jobs:
 
         kubectl delete all  --all -n ingress-nginx
         kubectl delete ingressClass nginx
-    #    kubectl delete ValidatingWebhookConfiguration ingress-nginx-admission
         
