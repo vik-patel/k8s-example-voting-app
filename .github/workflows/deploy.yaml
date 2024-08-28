@@ -3,7 +3,7 @@ on:
   workflow_dispatch
 env:
   AWS_REGION: "us-east-2"
-  ENV: "prod"
+  #ENV: "prod"
 permissions:
   id-token: write
   contents: read
