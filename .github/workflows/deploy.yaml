@@ -34,7 +34,6 @@ jobs:
           
     - name: Deploy application images to EKS cluster using manifest
       run: |
-        kubectl version --short
         kubectl apply -f k8s-specifications/db-secret.yaml
         kubectl apply -f k8s-specifications/db-deployment.yaml
         kubectl apply -f k8s-specifications/db-service.yaml
