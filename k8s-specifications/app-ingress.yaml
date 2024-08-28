@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: vote.cloudempowered.co
+    - host: vote.voteapp24.com
       http:
         paths:
           - path: /
@@ -17,7 +17,7 @@ spec:
                 name: vote
                 port:
                   number: 5000
-    - host: result.cloudempowered.co
+    - host: result.voteapp24.com
       http:
         paths:
           - path: /
