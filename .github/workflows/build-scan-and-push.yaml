@@ -18,12 +18,23 @@ jobs:
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_AP_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_AP_SECRET_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+          
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1      
     
     - name: Build and save
       uses: docker/build-push-action@v3
       with:
         context: ${{ env.DOCKERFILE_CONTEXT }}
-        tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        tags: $ECR_REGISTRY/$ECR_REPOSITORY/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         load: true
     
     - name: Setup cache
@@ -51,21 +62,10 @@ jobs:
       run: |
         ${GITHUB_WORKSPACE}/cache/sysdig-cli-scanner \
           --apiurl ${SYSDIG_SECURE_ENDPOINT} \
-          docker://${IMAGE_NAME}:${IMAGE_TAG} \
+          $ECR_REGISTRY/$ECR_REPOSITORY/${IMAGE_NAME}:${IMAGE_TAG} \
           --console-log \
           --dbpath=${GITHUB_WORKSPACE}/cache/db/ \
           --cachepath=${GITHUB_WORKSPACE}/cache/scanner-cache/
-
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_AP_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_AP_SECRET_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-          
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build, tag, and push the vote docker image to Amazon ECR
       id: build-mytestimage
@@ -74,5 +74,5 @@ jobs:
         ECR_REPOSITORY: voting-app
     # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
       run: |
-        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY/${IMAGE_NAME}:${IMAGE_TAG}
 
