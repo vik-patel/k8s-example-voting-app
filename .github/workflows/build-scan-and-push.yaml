@@ -31,6 +31,9 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1      
     
     - name: Build and save
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: voting-app
       uses: docker/build-push-action@v3
       with:
         context: ${{ env.DOCKERFILE_CONTEXT }}
@@ -59,6 +62,8 @@ jobs:
     - name: Scan the image using sysdig-cli-scanner
       env:
         SECURE_API_TOKEN: ${{ secrets.SECURE_API_TOKEN }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: voting-app
       run: |
         ${GITHUB_WORKSPACE}/cache/sysdig-cli-scanner \
           --apiurl ${SYSDIG_SECURE_ENDPOINT} \
