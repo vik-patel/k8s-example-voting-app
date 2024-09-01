@@ -34,7 +34,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: voting-app
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v6
       with:
         context: ${{ env.DOCKERFILE_CONTEXT }}
         tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_NAME }}
